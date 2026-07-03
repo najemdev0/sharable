@@ -909,32 +909,33 @@ export function PostCard({
 
             <Drawer open={showRepostConfirm} onOpenChange={setShowRepostConfirm}>
               <DrawerContent className="bg-zinc-100 dark:bg-zinc-900 border-black/10 dark:border-white/10 pb-8 rounded-t-[8px]">
-              <div className="mx-auto w-full max-w-xl">
-                <div className="py-6 px-4 space-y-4">
-                <div className="text-center space-y-2">
-                  <h3 className="text-lg font-bold">{reposted ? 'Remove repost?' : 'Repost this?'}</h3>
-                  <p className="text-zinc-500">
-                    {reposted 
-                      ? 'This will remove the repost from your profile and feed.' 
-                      : 'This will share this post to your profile and the feed of your followers.'}
-                  </p>
+                <div className="mx-auto w-full max-w-xl">
+                  <div className="py-6 px-4 space-y-4">
+                    <div className="text-center space-y-2">
+                      <h3 className="text-lg font-bold">{reposted ? 'Remove repost?' : 'Repost this?'}</h3>
+                      <p className="text-zinc-500">
+                        {reposted 
+                          ? 'This will remove the repost from your profile and feed.' 
+                          : 'This will share this post to your profile and the feed of your followers.'}
+                      </p>
+                    </div>
+                    <div className="flex gap-3 pt-2">
+                      <button
+                        onClick={() => setShowRepostConfirm(false)}
+                        className="flex-1 px-4 py-3 text-base font-bold bg-zinc-200 dark:bg-zinc-800 rounded-2xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        onClick={handleRepost}
+                        disabled={reposting}
+                        className="flex-1 px-4 py-3 text-base font-bold bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
+                      >
+                        {reposting ? <Loader centered={false} className="text-current" /> : (reposted ? 'Remove' : 'Repost')}
+                      </button>
+                    </div>
+                  </div>
                 </div>
-                <div className="flex gap-3 pt-2">
-                  <button
-                    onClick={() => setShowRepostConfirm(false)}
-                    className="flex-1 px-4 py-3 text-base font-bold bg-zinc-200 dark:bg-zinc-800 rounded-2xl hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors"
-                  >
-                    Cancel
-                  </button>
-                  <button
-                    onClick={handleRepost}
-                    disabled={reposting}
-                    className="flex-1 px-4 py-3 text-base font-bold bg-green-500 text-white rounded-2xl hover:bg-green-600 transition-colors flex items-center justify-center gap-2"
-                  >
-                    {reposting ? <Loader centered={false} className="text-current" /> : (reposted ? 'Remove' : 'Repost')}
-                  </button>
-                </div>
-              </div>
               </DrawerContent>
             </Drawer>
 
