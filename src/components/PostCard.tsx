@@ -733,18 +733,20 @@ export function PostCard({
                 />
               </div>
             </Link>
-            <div className="flex items-center gap-1.5">
-              <Link href={`/${user.username || user_id}`} className="font-bold text-[16px] hover:underline leading-tight">
-                {user.full_name}
-              </Link>
-              {user.identity_tag && (
-                <VerifiedBadge identity_tag={user.identity_tag} />
-              )}
+            <div className="flex flex-col gap-1.5 flex-1">
+              <div className="flex items-center gap-1.5">
+                <Link href={`/${user.username || user_id}`} className="font-bold text-[16px] hover:underline leading-tight">
+                  {user.full_name}
+                </Link>
+                {user.identity_tag && (
+                  <VerifiedBadge identity_tag={user.identity_tag} />
+                )}
+              </div>
               {isFollower && !isNested && (
-                <>
+                <div className="flex items-center gap-1.5">
                   <span className="text-zinc-300 dark:text-zinc-700">•</span>
                   <span className="text-[13px] font-medium text-zinc-400">Following</span>
-                </>
+                </div>
               )}
             </div>
           </div>
