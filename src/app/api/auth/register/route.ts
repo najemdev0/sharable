@@ -62,16 +62,12 @@ export async function POST(request: Request) {
       const userId = authData.user.id;
 
       const { error: profileError } = await supabaseAdmin.from('profiles').insert({
-        id: userId,
+        user_id: userId,
         full_name: fullName,
         username: username.toLowerCase(),
-        account_type: 'personal',
         // Personal fields
-        date_of_birth: dob || null,
-        gender: gender || null,
         bio: bio || null,
         avatar_url: avatarUrl || '',
-        password_hash: hashedPassword
       });
 
       if (profileError) {
