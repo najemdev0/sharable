@@ -41,7 +41,9 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
     avatarUrl: '',
     password: '',
     // Personal
-    dob: '',
+    dobMonth: '',
+    dobDay: '',
+    dobYear: '',
     gender: '',
     bio: '',
   });
@@ -91,6 +93,10 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
   const handleRegister = async () => {
     setLoading(true);
     try {
+      const dob = formData.dobYear && formData.dobMonth && formData.dobDay 
+        ? `${formData.dobYear}-${formData.dobMonth}-${formData.dobDay}`
+        : null;
+
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,7 +105,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
           password: formData.password,
           fullName: formData.fullName,
           // Personal fields
-          dob: formData.dob || null,
+          dob: dob,
           gender: formData.gender || null,
           bio: formData.bio || null,
           avatarUrl: '',
@@ -138,7 +144,8 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
     }
   };
 
-  const canProceedStep1 = formData.fullName && formData.username.length >= 3 && formData.dob && formData.gender && usernameStatus === 'available';
+  const dobIsComplete = formData.dobMonth && formData.dobDay && formData.dobYear;
+  const canProceedStep1 = formData.fullName && formData.username.length >= 3 && dobIsComplete && formData.gender && usernameStatus === 'available';
 
   // Display step label
   const stepLabel = `Step ${step} of ${totalSteps}`;
@@ -225,17 +232,48 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               {/* Date of Birth */}
               <div className="space-y-1.5">
                 <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-[0.1em] ml-1">Date of Birth</label>
-                <div className="relative">
-                  <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 pointer-events-none" />
-                  <input
-                    type="date"
-                    className="w-full h-[56px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl pl-12 pr-4 focus:border-foreground/20 focus:ring-0 transition-all text-foreground [color-scheme:light] dark:[color-scheme:dark]"
-                    value={formData.dob}
-                    onChange={(e) => {
-                      const value = e.target.value;
-                      setFormData({ ...formData, dob: value });
-                    }}
-                  />
+                <div className="grid grid-cols-3 gap-3">
+                  {/* Month */}
+                  <div className="relative">
+                    <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-neutral-500 pointer-events-none z-10" />
+                    <select
+                      value={formData.dobMonth}
+                      onChange={(e) => setFormData({ ...formData, dobMonth: e.target.value })}
+                      className="w-full h-[56px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl pl-12 pr-4 focus:border-foreground/20 focus:ring-0 transition-all text-foreground appearance-none"
+                    >
+                      <option value="">Month</option>
+                      {Array.from({ length: 12 }, (_, i) => {
+                        const month = i + 1;
+                        return <option key={month} value={month.toString().padStart(2, '0')}>{month.toString().padStart(2, '0')}</option>;
+                      })}
+                    </select>
+                  </div>
+
+                  {/* Day */}
+                  <select
+                    value={formData.dobDay}
+                    onChange={(e) => setFormData({ ...formData, dobDay: e.target.value })}
+                    className="w-full h-[56px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl pl-4 pr-4 focus:border-foreground/20 focus:ring-0 transition-all text-foreground appearance-none"
+                  >
+                    <option value="">Day</option>
+                    {Array.from({ length: 31 }, (_, i) => {
+                      const day = i + 1;
+                      return <option key={day} value={day.toString().padStart(2, '0')}>{day.toString().padStart(2, '0')}</option>;
+                    })}
+                  </select>
+
+                  {/* Year */}
+                  <select
+                    value={formData.dobYear}
+                    onChange={(e) => setFormData({ ...formData, dobYear: e.target.value })}
+                    className="w-full h-[56px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl pl-4 pr-4 focus:border-foreground/20 focus:ring-0 transition-all text-foreground appearance-none"
+                  >
+                    <option value="">Year</option>
+                    {Array.from({ length: 100 }, (_, i) => {
+                      const year = new Date().getFullYear() - i - 13;
+                      return <option key={year} value={year}>{year}</option>;
+                    })}
+                  </select>
                 </div>
               </div>
 
