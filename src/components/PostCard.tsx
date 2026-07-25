@@ -547,7 +547,20 @@ export function PostCard({
           .order('votes_count', { ascending: false });
 
         if (error) throw error;
-        setComments(data || []);
+        
+        // Supabase returns related data as an array even if it's a 1:1 relationship
+        // unless we use .single(), but we are fetching multiple comments.
+        // We need to map the data to match our Comment interface.
+        const formattedComments = (data || []).map((comment: any) => ({
+          ...comment,
+          user: Array.isArray(comment.user) ? comment.user[0] : comment.user,
+          replies: (comment.replies || []).map((reply: any) => ({
+            ...reply,
+            user: Array.isArray(reply.user) ? reply.user[0] : reply.user
+          }))
+        }));
+
+        setComments(formattedComments);
       } catch (error) {
         toast.error('Failed to load comments');
       } finally {
@@ -583,7 +596,13 @@ export function PostCard({
 
       if (error) throw error;
 
-      setComments([data, ...comments]);
+      // Ensure user is an object, not an array
+      const formattedComment = {
+        ...data,
+        user: Array.isArray(data.user) ? data.user[0] : data.user
+      };
+
+      setComments([formattedComment, ...comments]);
       setNewComment('');
       setCommentsCount(commentsCount + 1);
       toast.success('Comment posted!');
