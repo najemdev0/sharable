@@ -231,7 +231,10 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
                     type="date"
                     className="w-full h-[56px] bg-neutral-100 dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl pl-12 pr-4 focus:border-foreground/20 focus:ring-0 transition-all text-foreground [color-scheme:light] dark:[color-scheme:dark]"
                     value={formData.dob}
-                    onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
+                    onChange={(e) => {
+                      const value = e.target.value;
+                      setFormData({ ...formData, dob: value });
+                    }}
                   />
                 </div>
               </div>
