@@ -1,15 +1,10 @@
-import { createClient } from '@supabase/supabase-js';
 import { NextResponse } from 'next/server';
 import { hashPassword, createToken } from '@/lib/auth-utils';
-
-const supabaseAdmin = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!,
-  { auth: { autoRefreshToken: false, persistSession: false } }
-);
+import { getSupabaseAdmin } from '@/lib/supabase/server-client';
 
 export async function POST(request: Request) {
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const { username, password, fullName, dob, gender, avatarUrl, bio } = await request.json();
     
     if (!username || !password) {

@@ -5,15 +5,20 @@ let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
 
 function getSupabaseClient() {
   if (!supabaseInstance) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co'
-    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder-key'
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+
+    // Check if we have valid credentials before attempting to create client
+    if (!supabaseUrl || !supabaseKey) {
+      // Return a dummy proxy during build time
+      return {} as any
+    }
 
     try {
       supabaseInstance = createClient<Database>(supabaseUrl, supabaseKey)
     } catch (error) {
-      // During build, these values might be placeholders
-      // Return a dummy object that won't cause errors
-      supabaseInstance = {} as any
+      console.error('[v0] Failed to initialize Supabase client:', error)
+      return {} as any
     }
   }
 
