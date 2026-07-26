@@ -23,7 +23,7 @@ export async function getPostComments(postId: string, limit = 50, offset = 0) {
     .from('comments')
     .select('*')
     .eq('post_id', postId)
-    .eq('parent_comment_id', null)
+    .is('parent_comment_id', null)
     .eq('is_deleted', false)
     .order('created_at', { ascending: false })
     .range(offset, offset + limit - 1)
