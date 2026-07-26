@@ -3,10 +3,13 @@ import bcrypt from 'bcryptjs';
 
 // JWT_SECRET must be set as a strong random value in your environment variables.
 // NEVER fall back to a known/public value — doing so would allow anyone to forge tokens.
-if (!process.env.JWT_SECRET) {
-  throw new Error('JWT_SECRET environment variable is not set. Set a strong random secret.');
+function getJwtSecret() {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error('JWT_SECRET environment variable is not set. Set a strong random secret.');
+  }
+  return new TextEncoder().encode(secret);
 }
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 type TokenPayload = {
   userId: string;
@@ -29,12 +32,12 @@ export async function createToken(payload: TokenPayload) {
     .setProtectedHeader({ alg: 'HS256' })
     .setIssuedAt()
     .setExpirationTime('30d')
-    .sign(JWT_SECRET);
+    .sign(getJwtSecret());
 }
 
 export async function verifyToken(token: string) {
   try {
-    const { payload } = await jwtVerify(token, JWT_SECRET);
+    const { payload } = await jwtVerify(token, getJwtSecret());
     return payload;
   } catch {
     return null;

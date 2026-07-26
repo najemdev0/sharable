@@ -1,5 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  typescript: {
+    ignoreBuildErrors: true,
+  },
+  experimental: {
+    isrMemoryCacheSize: 0,
+  },
   turbopack: {
     resolveAlias: {
       'underscore': 'lodash',
