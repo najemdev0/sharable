@@ -15,6 +15,7 @@ import {
   EyeOff,
   XCircle,
   AtSign,
+  Briefcase,
 } from 'lucide-react';
 import { Loader } from '@/components/ui/loader';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -27,7 +28,8 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) {
   const router = useRouter();
-  const [step, setStep] = useState(1); // Start at step 1 (skip account type selection)
+  const [step, setStep] = useState(0); // Start at step 0 (account type selection)
+  const [accountType, setAccountType] = useState<'personal' | 'brand' | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -46,7 +48,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
     bio: '',
   });
 
-  const totalSteps = 3; // 1: info, 2: avatar, 3: password
+  const totalSteps = 4; // 0: account type, 1: info, 2: avatar, 3: password
 
   useEffect(() => {
     if (formData.username.length < 3) {
@@ -75,7 +77,12 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
     }
     setStep(s => s + 1);
   };
-  const handlePrev = () => setStep(s => s - 1);
+  const handlePrev = () => {
+    if (step === 1) {
+      setAccountType(null);
+    }
+    setStep(s => s - 1);
+  };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -140,8 +147,8 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
   const canProceedStep1 = formData.fullName && formData.username.length >= 3 && formData.dob && formData.gender && usernameStatus === 'available';
 
-  // Display step label
-  const stepLabel = `Step ${step} of ${totalSteps}`;
+  // Display step label (skip step 0 from label)
+  const stepLabel = step === 0 ? null : `Step ${step} of ${totalSteps - 1}`;
 
   return (
     <motion.div
@@ -151,7 +158,12 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       className="w-full flex flex-col items-center gap-6"
     >
       <div className="text-center space-y-2">
-        <h1 className="text-2xl font-bold tracking-tight">Create Account</h1>
+        <h1 className="text-2xl font-bold tracking-tight">
+          {step === 0 ? 'Create Account' : 'Create Account'}
+        </h1>
+        {step === 0 && (
+          <p className="text-neutral-500 text-sm">Choose the type of account you&apos;d like to create</p>
+        )}
         {stepLabel && (
           <p className="text-neutral-500 text-sm">{stepLabel}</p>
         )}
@@ -159,6 +171,51 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
 
       <div className="w-full">
         <AnimatePresence mode="wait">
+
+          {/* ── STEP 0: Account Type ── */}
+          {step === 0 && (
+            <motion.div
+              key="step0"
+              initial={{ opacity: 0, x: 10 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -10 }}
+              className="flex flex-col gap-4"
+            >
+              {/* Personal Account Option */}
+              <button
+                onClick={() => {
+                  setAccountType('personal');
+                  setStep(1);
+                }}
+                className="flex items-start gap-4 p-6 rounded-3xl border-2 border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 hover:border-foreground/20 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-all active:scale-[0.98] text-left"
+              >
+                <div className="p-3 bg-neutral-200 dark:bg-neutral-800 rounded-2xl shrink-0">
+                  <CircleUser className="w-6 h-6 text-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-foreground">Personal Account</h3>
+                  <p className="text-neutral-500 text-sm mt-1">For individuals who want to share their daily life, thoughts, and moments.</p>
+                </div>
+              </button>
+
+              {/* Brand Account Option */}
+              <button
+                onClick={() => {
+                  setAccountType('brand');
+                  setStep(1);
+                }}
+                className="flex items-start gap-4 p-6 rounded-3xl border-2 border-neutral-200 dark:border-neutral-800 bg-neutral-50 dark:bg-neutral-900/50 hover:border-foreground/20 hover:bg-neutral-100 dark:hover:bg-neutral-800/50 transition-all active:scale-[0.98] text-left"
+              >
+                <div className="p-3 bg-neutral-200 dark:bg-neutral-800 rounded-2xl shrink-0">
+                  <Briefcase className="w-6 h-6 text-foreground" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-lg font-bold text-foreground">Brand Account</h3>
+                  <p className="text-neutral-500 text-sm mt-1">For businesses, creators, and organizations to build their presence.</p>
+                </div>
+              </button>
+            </motion.div>
+          )}
 
           {/* ── STEP 1: Personal Info ── */}
           {step === 1 && (
@@ -303,8 +360,12 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
               <div className="text-center space-y-1">
                 <h3 className="text-xl font-bold text-foreground">{formData.fullName || 'Your Name'}</h3>
                 <p className="text-neutral-500">@{formData.username || 'username'}</p>
-                <span className="inline-block mt-1 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full bg-blue-500/10 text-blue-500">
-                  Personal
+                <span className={`inline-block mt-1 text-[10px] font-bold uppercase tracking-widest px-2.5 py-1 rounded-full ${
+                  accountType === 'brand'
+                    ? 'bg-amber-500/10 text-amber-600'
+                    : 'bg-blue-500/10 text-blue-500'
+                }`}>
+                  {accountType === 'brand' ? 'Brand' : 'Personal'}
                 </span>
               </div>
 
