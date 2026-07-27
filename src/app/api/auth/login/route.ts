@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
+import { createToken } from '@/lib/auth-utils';
 
 export async function POST(request: Request) {
   try {
@@ -33,14 +34,20 @@ export async function POST(request: Request) {
       return NextResponse.json({ error: 'Invalid username or password' }, { status: 401 });
     }
 
+    // Create a custom JWT token (matching registration flow)
+    const token = await createToken({
+      userId: profileData.id,
+      username: profileData.username
+    });
+
     const response = NextResponse.json({ 
       success: true, 
       userId: profileData.id,
       message: 'Logged in successfully'
     });
 
-    // Set the session cookie with the access token
-    response.cookies.set('sb-auth-token', data.session.access_token, {
+    // Set the session cookie with the custom JWT token
+    response.cookies.set('sb-auth-token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
