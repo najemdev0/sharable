@@ -8,6 +8,7 @@ export const runtime = 'nodejs';
 
 
 export async function POST(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   const cookieHeader = request.headers.get('cookie') || '';
   const cookies = Object.fromEntries(
     cookieHeader.split('; ').map(c => {
@@ -34,7 +35,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
   }
 
-  const fileExt = file.name.split('.').pop();
+  const fileExt = file.name.includes('.') ? file.name.split('.').pop() : '';
   const fileName = `${payload.userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
   const arrayBuffer = await file.arrayBuffer();

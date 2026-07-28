@@ -8,6 +8,7 @@ export const runtime = 'nodejs';
 
 
 export async function POST(request: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   const cookieHeader = request.headers.get('cookie') || '';
   const cookies = Object.fromEntries(
     cookieHeader.split('; ').map(c => {

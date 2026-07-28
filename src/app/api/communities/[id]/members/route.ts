@@ -3,6 +3,7 @@ import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-clien
 
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { id } = await params;
     const { user_id } = await req.json();

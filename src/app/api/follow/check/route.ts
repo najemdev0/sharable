@@ -3,6 +3,7 @@ import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-clien
 
 
 export async function GET(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { searchParams } = new URL(req.url);
     const follower_id = searchParams.get('follower_id');

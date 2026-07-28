@@ -4,6 +4,7 @@ import { comparePassword } from '@/lib/auth-utils';
 
 
 export async function POST(request: Request) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { password, userId } = await request.json();
     
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('password_hash')
-      .eq('id', userId)
+      .or(`id.eq.${userId},user_id.eq.${userId}`)
       .single();
 
     if (profileError || !profile || !profile.password_hash) {

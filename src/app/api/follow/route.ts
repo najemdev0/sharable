@@ -11,6 +11,7 @@ async function getAuthUserId(req: NextRequest): Promise<string | null> {
 }
 
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const authUserId = await getAuthUserId(req);
     if (!authUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

@@ -4,6 +4,7 @@ import { verifyToken } from '@/lib/auth-utils';
 
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     // Verify caller is authenticated
     const token = req.cookies.get('sb-auth-token')?.value;

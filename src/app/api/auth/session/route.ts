@@ -4,6 +4,7 @@ import { verifyToken } from '@/lib/auth-utils';
 
 
 export async function GET(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const sessionToken = req.cookies.get('sb-auth-token')?.value;
     if (!sessionToken) {
@@ -19,7 +20,7 @@ export async function GET(req: NextRequest) {
     const { data: profile, error: profileError } = await supabaseAdmin
       .from('profiles')
       .select('*')
-      .eq('id', payload.userId)
+      .or(`id.eq.${payload.userId},user_id.eq.${payload.userId}`)
       .single();
 
     if (profileError || !profile) {
@@ -30,7 +31,7 @@ export async function GET(req: NextRequest) {
     const response = NextResponse.json({
       user: {
         id: profile.id,
-        email: `${profile.username}@shareit.com`,
+        email: `${profile.username}@sharable.com`,
         user_metadata: {
           username: profile.username,
           full_name: profile.full_name

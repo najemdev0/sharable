@@ -2,8 +2,8 @@ import { NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/server-client';
 
 export async function POST(request: Request) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
-    const supabaseAdmin = getSupabaseAdmin();
     const { userId } = await request.json();
     
     if (!userId) {

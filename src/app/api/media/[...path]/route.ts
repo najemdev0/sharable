@@ -10,6 +10,7 @@ export async function GET(
   request: NextRequest,
   { params }: { params: Promise<{ path: string[] }> }
 ) {
+  const supabaseAdmin = getSupabaseAdmin();
   // Verify authentication
   const sessionToken = request.cookies.get('sb-auth-token')?.value;
   if (!sessionToken) {

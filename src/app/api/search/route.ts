@@ -4,6 +4,7 @@ import { verifyToken } from '@/lib/auth-utils';
 
 
 export async function GET(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     // Search requires authentication
     const token = req.cookies.get('sb-auth-token')?.value;
@@ -63,11 +64,12 @@ export async function GET(req: NextRequest) {
       }
 
       if (type === 'stories') {
-        const { data: stories } = await supabaseAdmin
+        const { data: stories, error: storiesError } = await supabaseAdmin
           .from('stories')
           .select(`id, caption, photo_url, created_at, user:profiles(id, full_name, username, avatar_url)`)
           .order('created_at', { ascending: false })
           .limit(20);
+        if (storiesError) throw storiesError;
         return NextResponse.json({ stories: stories || [] });
       }
 

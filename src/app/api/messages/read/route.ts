@@ -4,6 +4,7 @@ import { verifyToken } from '@/lib/auth-utils';
 
 
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const token = req.cookies.get('sb-auth-token')?.value;
     if (!token) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

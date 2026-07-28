@@ -4,6 +4,7 @@ import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-clien
 
 // Called once on app init to ensure required storage buckets exist
 export async function GET() {
+  const supabaseAdmin = getSupabaseAdmin();
   return POST();
 }
 

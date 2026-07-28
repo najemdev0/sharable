@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin } from '@/lib/supabase/server-client';
 
 export async function GET(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
-    const supabaseAdmin = getSupabaseAdmin();
     const { searchParams } = new URL(req.url);
     const username = searchParams.get('username');
 

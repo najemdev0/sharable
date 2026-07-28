@@ -3,8 +3,8 @@ import { hashPassword, createToken } from '@/lib/auth-utils';
 import { getSupabaseAdmin } from '@/lib/supabase/server-client';
 
 export async function POST(request: Request) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
-    const supabaseAdmin = getSupabaseAdmin();
     const { username, password, fullName, dob, gender, avatarUrl, bio } = await request.json();
     
     if (!username || !password) {
@@ -56,28 +56,29 @@ export async function POST(request: Request) {
 
       const userId = authData.user.id;
 
-      const { error: profileError } = await supabaseAdmin.from('profiles').insert({
+      const { data: newProfile, error: profileError } = await supabaseAdmin.from('profiles').insert({
         user_id: userId,
         full_name: fullName,
         username: username.toLowerCase(),
         // Personal fields
         bio: bio || null,
         avatar_url: avatarUrl || '',
+      password_hash: hashedPassword,
       });
 
-      if (profileError) {
+      if (profileError || !newProfile) {
         await supabaseAdmin.auth.admin.deleteUser(userId);
-        return NextResponse.json({ error: profileError.message }, { status: 500 });
+        return NextResponse.json({ error: profileError?.message || 'Failed to create profile' }, { status: 500 });
       }
 
     const token = await createToken({
-      userId: userId,
+      userId: newProfile.id,
       username: username.toLowerCase() // Using 'username' key for backward compatibility in token
     });
 
     const response = NextResponse.json({ 
       success: true, 
-      userId: userId,
+      userId: newProfile.id,
       message: 'Account created successfully'
     });
 

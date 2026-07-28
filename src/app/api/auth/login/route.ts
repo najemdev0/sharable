@@ -3,9 +3,9 @@ import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-clien
 import { createToken } from '@/lib/auth-utils';
 
 export async function POST(request: Request) {
+  const supabaseAdmin = getSupabaseAdmin();
+  const supabasePublic = getSupabasePublic();
   try {
-    const supabaseAdmin = getSupabaseAdmin();
-    const supabasePublic = getSupabasePublic();
     const { username, password } = await request.json();
 
     if (!username || !password) {

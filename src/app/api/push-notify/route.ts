@@ -52,6 +52,7 @@ async function buildVapidAuthHeader(endpoint: string, vapidPublicKey: string, va
 }
 
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const { user_id, title, body, url } = await req.json();
 
