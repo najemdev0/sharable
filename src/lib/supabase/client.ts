@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js'
-import type { Database } from '@/lib/database.types'
 
-let supabaseInstance: ReturnType<typeof createClient<Database>> | null = null
+// The checked-in generated schema is behind the deployed migrations; regenerate it before restoring a strict generic here.
+let supabaseInstance: ReturnType<typeof createClient<any>> | null = null
 
 function getSupabaseClient() {
   if (!supabaseInstance) {
@@ -15,7 +15,7 @@ function getSupabaseClient() {
     }
 
     try {
-      supabaseInstance = createClient<Database>(supabaseUrl, supabaseKey)
+      supabaseInstance = createClient<any>(supabaseUrl, supabaseKey)
     } catch (error) {
       console.error('[v0] Failed to initialize Supabase client:', error)
       return {} as any
@@ -25,7 +25,7 @@ function getSupabaseClient() {
   return supabaseInstance
 }
 
-export const supabase = new Proxy({} as ReturnType<typeof createClient<Database>>, {
+export const supabase = new Proxy({} as ReturnType<typeof createClient<any>>, {
   get: (target, prop) => {
     return (getSupabaseClient() as any)[prop]
   },

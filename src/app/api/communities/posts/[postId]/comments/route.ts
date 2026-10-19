@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
@@ -29,9 +30,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ post
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
+    const authenticatedUserId = await getAuthenticatedUserId(req);
+    if (!authenticatedUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { postId } = await params;
-    const { user_id, content } = await req.json();
+    const { content } = await req.json();
+    const user_id = authenticatedUserId;
 
     if (!user_id || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });

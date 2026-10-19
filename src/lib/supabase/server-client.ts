@@ -1,8 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
-import type { Database } from '@/lib/database.types';
-
-let adminClient: ReturnType<typeof createClient<Database>> | null = null;
-let publicClient: ReturnType<typeof createClient<Database>> | null = null;
+// The checked-in generated schema is behind the deployed migrations; regenerate it before restoring a strict generic here.
+let adminClient: ReturnType<typeof createClient<any>> | null = null;
+let publicClient: ReturnType<typeof createClient<any>> | null = null;
 
 export function getSupabaseAdmin() {
   if (!adminClient) {
@@ -13,7 +12,7 @@ export function getSupabaseAdmin() {
       throw new Error('Missing Supabase credentials for admin client');
     }
 
-    adminClient = createClient<Database>(url, key, {
+    adminClient = createClient<any>(url, key, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
   }
@@ -30,7 +29,7 @@ export function getSupabasePublic() {
       throw new Error('Missing Supabase credentials for public client');
     }
 
-    publicClient = createClient<Database>(url, key, {
+    publicClient = createClient<any>(url, key, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
   }

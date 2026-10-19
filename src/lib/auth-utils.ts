@@ -1,6 +1,8 @@
 import { SignJWT, jwtVerify } from 'jose';
 import bcrypt from 'bcryptjs';
 
+const AUTH_COOKIE_NAME = 'sb-auth-token';
+
 // JWT_SECRET must be set as a strong random value in your environment variables.
 // NEVER fall back to a known/public value — doing so would allow anyone to forge tokens.
 function getJwtSecret() {
@@ -44,6 +46,28 @@ export async function verifyToken(token: string) {
   }
 }
 
+export function getAuthToken(request: Request) {
+  const cookieHeader = request.headers.get('cookie') || '';
+  const cookies = cookieHeader.split(';').reduce<Record<string, string>>((acc, item) => {
+    const separator = item.indexOf('=');
+    if (separator === -1) return acc;
+    const name = item.slice(0, separator).trim();
+    const value = item.slice(separator + 1).trim();
+    if (name) acc[name] = decodeURIComponent(value);
+    return acc;
+  }, {});
+
+  return cookies[AUTH_COOKIE_NAME] || null;
+}
+
+export async function getAuthenticatedUserId(request: Request) {
+  const token = getAuthToken(request);
+  if (!token) return null;
+
+  const payload = await verifyToken(token);
+  return typeof payload?.userId === 'string' ? payload.userId : null;
+}
+
 export async function hashPassword(password: string) {
   const salt = await bcrypt.genSalt(10);
   return await bcrypt.hash(password, salt);
@@ -52,5 +76,4 @@ export async function hashPassword(password: string) {
 export async function comparePassword(password: string, hash: string) {
   return await bcrypt.compare(password, hash);
 }
-
 

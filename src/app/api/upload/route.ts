@@ -6,6 +6,9 @@ export const maxDuration = 60;
 
 export const runtime = 'nodejs';
 
+const ALLOWED_BUCKETS = new Set(['posts', 'avatars', 'covers', 'stories']);
+const MAX_UPLOAD_SIZE = 50 * 1024 * 1024;
+
 
 export async function POST(request: NextRequest) {
   const supabaseAdmin = getSupabaseAdmin();
@@ -33,6 +36,10 @@ export async function POST(request: NextRequest) {
 
   if (!file) {
     return NextResponse.json({ error: 'No file provided' }, { status: 400 });
+  }
+
+  if (!ALLOWED_BUCKETS.has(bucket) || file.size > MAX_UPLOAD_SIZE) {
+    return NextResponse.json({ error: 'Invalid bucket or file too large' }, { status: 400 });
   }
 
   const fileExt = file.name.includes('.') ? file.name.split('.').pop() : '';

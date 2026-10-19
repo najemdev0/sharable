@@ -46,6 +46,7 @@ export async function POST(req: NextRequest) {
 
 // Remove a push subscription
 export async function DELETE(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const userId = await getAuthUserId(req);
     if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

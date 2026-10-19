@@ -1,13 +1,11 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 export async function POST(request: Request) {
   try {
-    const { userId } = await request.json();
-
-    if (!userId) {
-      return NextResponse.json({ error: 'User ID is required' }, { status: 400 });
-    }
+    const userId = await getAuthenticatedUserId(request);
+    if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     const { error } = await supabase
       .from('profiles')

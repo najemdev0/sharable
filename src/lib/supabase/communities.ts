@@ -53,7 +53,7 @@ export async function getUserCommunities(profileId: string, limit = 20, offset =
     .range(offset, offset + limit - 1)
 
   if (error) throw error
-  return data.map(item => item.communities) as Community[]
+  return data.map(item => item.communities) as unknown as Community[]
 }
 
 // Create community

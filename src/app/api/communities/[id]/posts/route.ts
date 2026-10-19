@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
+import { getSupabaseAdmin } from '@/lib/supabase/server-client';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -7,7 +8,9 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
   try {
     const { id } = await params;
     const { searchParams } = new URL(req.url);
-    const user_id = searchParams.get('user_id');
+    const requestedUserId = searchParams.get('user_id');
+    const authenticatedUserId = await getAuthenticatedUserId(req);
+    const user_id = authenticatedUserId && requestedUserId === authenticatedUserId ? authenticatedUserId : null;
     const approved_only = searchParams.get('approved_only') !== 'false';
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
@@ -57,9 +60,14 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
+    const authenticatedUserId = await getAuthenticatedUserId(req);
+    if (!authenticatedUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
-    const { user_id, content, media_url, media_type } = await req.json();
+    const { content, media_url, media_type } = await req.json();
+    const user_id = authenticatedUserId;
 
     if (!user_id || !content) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });

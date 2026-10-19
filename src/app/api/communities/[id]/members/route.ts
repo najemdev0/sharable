@@ -1,22 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
+import { getSupabaseAdmin } from '@/lib/supabase/server-client';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const supabaseAdmin = getSupabaseAdmin();
   try {
-    const { id } = await params;
-    const { user_id } = await req.json();
+    const authUserId = await getAuthenticatedUserId(req);
+    if (!authUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user_id) {
-      return NextResponse.json({ error: 'Missing user_id' }, { status: 400 });
-    }
+    const { id } = await params;
 
     const { data, error } = await supabaseAdmin
       .from('community_members')
       .insert({
         community_id: id,
-        user_id,
+        user_id: authUserId,
         role: 'member',
       })
       .select()
@@ -36,19 +35,18 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
-    const { id } = await params;
-    const { user_id } = await req.json();
+    const authUserId = await getAuthenticatedUserId(req);
+    if (!authUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    if (!user_id) {
-      return NextResponse.json({ error: 'Missing user_id' }, { status: 400 });
-    }
+    const { id } = await params;
 
     const { error } = await supabaseAdmin
       .from('community_members')
       .delete()
       .eq('community_id', id)
-      .eq('user_id', user_id);
+      .eq('user_id', authUserId);
 
     if (error) throw error;
 

@@ -54,6 +54,7 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const authUserId = await getAuthUserId(req);
     if (!authUserId) {

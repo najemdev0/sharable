@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
+import { getSupabaseAdmin } from '@/lib/supabase/server-client';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -27,9 +28,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
+    const authUserId = await getAuthenticatedUserId(req);
+    if (!authUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
-    const { name, description, category, avatar_url, cover_url, posting_permission, creator_id, transfer_to } = await req.json();
+    const { name, description, category, avatar_url, cover_url, posting_permission, transfer_to } = await req.json();
 
     // Verify user is creator
     const { data: community } = await supabaseAdmin
@@ -38,7 +43,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       .eq('id', id)
       .single();
 
-    if (!community || community.creator_id !== creator_id) {
+    if (!community || community.creator_id !== authUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -86,9 +91,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
+    const authUserId = await getAuthenticatedUserId(req);
+    if (!authUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { id } = await params;
-    const { creator_id } = await req.json();
 
     // Verify user is creator
     const { data: community } = await supabaseAdmin
@@ -97,7 +105,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       .eq('id', id)
       .single();
 
-    if (!community || community.creator_id !== creator_id) {
+    if (!community || community.creator_id !== authUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

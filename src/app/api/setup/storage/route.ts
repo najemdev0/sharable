@@ -1,14 +1,18 @@
 import { NextResponse } from 'next/server';
-import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
+import { getSupabaseAdmin } from '@/lib/supabase/server-client';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 
 // Called once on app init to ensure required storage buckets exist
-export async function GET() {
+async function setupStorage(request: Request) {
+  const userId = await getAuthenticatedUserId(request);
+  if (!userId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
   const supabaseAdmin = getSupabaseAdmin();
-  return POST();
+  return createStoriesBucket(supabaseAdmin);
 }
 
-export async function POST() {
+async function createStoriesBucket(supabaseAdmin: ReturnType<typeof getSupabaseAdmin>) {
   try {
     const { data: buckets, error: listError } = await supabaseAdmin.storage.listBuckets();
     if (listError) throw listError;
@@ -31,4 +35,12 @@ export async function POST() {
   } catch (err: any) {
     return NextResponse.json({ ok: false, error: err.message }, { status: 500 });
   }
+}
+
+export async function GET(request: Request) {
+  return setupStorage(request);
+}
+
+export async function POST(request: Request) {
+  return setupStorage(request);
 }

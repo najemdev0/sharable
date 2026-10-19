@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { jwtVerify } from 'jose';
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET ||
-  process.env.SUPABASE_SERVICE_ROLE_KEY ||
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
-  'default-secret-key-123456'
-);
+function getJwtSecret() {
+  const value = process.env.JWT_SECRET;
+  if (!value) throw new Error('JWT_SECRET environment variable is required.');
+  return new TextEncoder().encode(value);
+}
 
 const publicPaths = [
   '/',
@@ -44,7 +43,7 @@ export async function proxy(req: NextRequest) {
   }
 
   try {
-    await jwtVerify(token, JWT_SECRET);
+    await jwtVerify(token, getJwtSecret());
     return NextResponse.next();
   } catch (error) {
     // If token is invalid, redirect to landing page

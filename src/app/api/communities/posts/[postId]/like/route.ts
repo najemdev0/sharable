@@ -50,6 +50,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pos
 }
 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ postId: string }> }) {
+  const supabaseAdmin = getSupabaseAdmin();
   try {
     const authUserId = await getAuthUserId(req);
     if (!authUserId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

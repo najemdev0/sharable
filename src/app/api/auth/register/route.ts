@@ -64,7 +64,7 @@ export async function POST(request: Request) {
         bio: bio || null,
         avatar_url: avatarUrl || '',
       password_hash: hashedPassword,
-      });
+      }).select('id').single();
 
       if (profileError || !newProfile) {
         await supabaseAdmin.auth.admin.deleteUser(userId);

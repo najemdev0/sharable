@@ -2,9 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
 import { verifyToken } from '@/lib/auth-utils';
 
+const ALLOWED_BUCKETS = new Set(['posts', 'avatars', 'covers', 'stories']);
+const ALLOWED_FILE_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/gif', 'video/mp4', 'video/webm']);
+
 
 export async function POST(request: NextRequest) {
-  const supabaseAdmin = getSupabaseAdmin();
+const supabaseAdmin = getSupabaseAdmin();
   const cookieHeader = request.headers.get('cookie') || '';
   const cookies = Object.fromEntries(
     cookieHeader.split('; ').map(c => {
@@ -29,7 +32,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'fileName and fileType required' }, { status: 400 });
   }
 
-  const fileExt = fileName.split('.').pop();
+  if (!ALLOWED_BUCKETS.has(bucket) || !ALLOWED_FILE_TYPES.has(fileType) || typeof fileName !== 'string' || fileName.length > 255) {
+    return NextResponse.json({ error: 'Invalid upload type or bucket' }, { status: 400 });
+  }
+
+  const fileExt = fileName.split('.').pop()?.toLowerCase().replace(/[^a-z0-9]/g, '');
+  if (!fileExt) return NextResponse.json({ error: 'Invalid file name' }, { status: 400 });
   const storagePath = `${payload.userId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
   const { data, error } = await supabaseAdmin.storage

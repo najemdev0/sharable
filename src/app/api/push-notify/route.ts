@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-client';
+import { getSupabaseAdmin } from '@/lib/supabase/server-client';
+import { getAuthenticatedUserId } from '@/lib/auth-utils';
 
 
 // Minimal Web Push payload sender using the Web Push Protocol (RFC 8030)
@@ -54,10 +55,17 @@ async function buildVapidAuthHeader(endpoint: string, vapidPublicKey: string, va
 export async function POST(req: NextRequest) {
   const supabaseAdmin = getSupabaseAdmin();
   try {
+    const senderId = await getAuthenticatedUserId(req);
+    if (!senderId) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+
     const { user_id, title, body, url } = await req.json();
 
     if (!user_id || !title) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
+    }
+
+    if (typeof title !== 'string' || title.length > 120 || (body && (typeof body !== 'string' || body.length > 500))) {
+      return NextResponse.json({ error: 'Invalid notification payload' }, { status: 400 });
     }
 
     const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
