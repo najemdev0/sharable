@@ -12,8 +12,8 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       .from('communities')
       .select(`
         *,
-        creator:profiles(id, full_name, username, avatar_url),
-        members:community_members(id, user_id, role, user:profiles(id, full_name, username, avatar_url))
+        creator:profiles!communities_created_by_fkey(id, full_name, username, avatar_url),
+        members:community_members(id, profile_id, role, user:profiles(id, full_name, username, avatar_url))
       `)
       .eq('id', id)
       .single();
@@ -39,11 +39,11 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     // Verify user is creator
     const { data: community } = await supabaseAdmin
       .from('communities')
-      .select('creator_id')
+      .select('created_by')
       .eq('id', id)
       .single();
 
-    if (!community || community.creator_id !== authUserId) {
+    if (!community || community.created_by !== authUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -59,18 +59,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       }
       const { error: transferErr } = await supabaseAdmin
         .from('communities')
-        .update({ creator_id: newOwner.id })
+        .update({ created_by: newOwner.id })
         .eq('id', id);
       if (transferErr) throw transferErr;
       // Ensure new owner is an admin member
       await supabaseAdmin.from('community_members').upsert(
-        { community_id: id, user_id: newOwner.id, role: 'admin' },
-        { onConflict: 'community_id,user_id' }
+        { community_id: id, profile_id: newOwner.id, role: 'admin' },
+        { onConflict: 'community_id,profile_id' }
       );
       return NextResponse.json({ success: true, transferred: true });
     }
 
-    const updatePayload: Record<string, any> = { name, description, category };
+    const updatePayload: Record<string, any> = { name, description };
     if (avatar_url !== undefined) updatePayload.avatar_url = avatar_url;
     if (cover_url !== undefined) updatePayload.cover_url = cover_url;
     if (posting_permission !== undefined) updatePayload.posting_permission = posting_permission;
@@ -101,11 +101,11 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     // Verify user is creator
     const { data: community } = await supabaseAdmin
       .from('communities')
-      .select('creator_id')
+      .select('created_by')
       .eq('id', id)
       .single();
 
-    if (!community || community.creator_id !== authUserId) {
+    if (!community || community.created_by !== authUserId) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 

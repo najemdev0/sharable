@@ -3,8 +3,8 @@ import { hashPassword, createToken } from '@/lib/auth-utils';
 import { getSupabaseAdmin } from '@/lib/supabase/server-client';
 
 export async function POST(request: Request) {
-  const supabaseAdmin = getSupabaseAdmin();
   try {
+    const supabaseAdmin = getSupabaseAdmin();
     const { username, password, fullName, dob, gender, avatarUrl, bio } = await request.json();
     
     if (!username || !password) {
@@ -92,6 +92,11 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error: any) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error('[auth/register] Registration error:', error);
+    const isConfigurationError = typeof error?.message === 'string' && error.message.includes('Missing Supabase credentials');
+    return NextResponse.json(
+      { error: isConfigurationError ? 'Supabase is not configured on the server.' : 'Registration failed. Please try again.' },
+      { status: 500 }
+    );
   }
 }

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .from('community_members')
       .insert({
         community_id: id,
-        user_id: authUserId,
+        profile_id: authUserId,
         role: 'member',
       })
       .select()
@@ -46,7 +46,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       .from('community_members')
       .delete()
       .eq('community_id', id)
-      .eq('user_id', authUserId);
+      .eq('profile_id', authUserId);
 
     if (error) throw error;
 

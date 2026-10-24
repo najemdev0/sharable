@@ -3,9 +3,9 @@ import { getSupabaseAdmin, getSupabasePublic } from '@/lib/supabase/server-clien
 import { createToken } from '@/lib/auth-utils';
 
 export async function POST(request: Request) {
-  const supabaseAdmin = getSupabaseAdmin();
-  const supabasePublic = getSupabasePublic();
   try {
+    const supabaseAdmin = getSupabaseAdmin();
+    const supabasePublic = getSupabasePublic();
     const { username, password } = await request.json();
 
     if (!username || !password) {
@@ -57,7 +57,11 @@ export async function POST(request: Request) {
 
     return response;
   } catch (error: any) {
-    console.error('[v0] Login error:', error.message);
-    return NextResponse.json({ error: 'Login failed. Please try again.' }, { status: 500 });
+    console.error('[auth/login] Login error:', error);
+    const isConfigurationError = typeof error?.message === 'string' && error.message.includes('Missing Supabase credentials');
+    return NextResponse.json(
+      { error: isConfigurationError ? 'Supabase is not configured on the server.' : 'Login failed. Please try again.' },
+      { status: 500 }
+    );
   }
 }

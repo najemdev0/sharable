@@ -8,7 +8,6 @@ export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const search = searchParams.get('search');
-    const category = searchParams.get('category');
     const limit = parseInt(searchParams.get('limit') || '20');
     const offset = parseInt(searchParams.get('offset') || '0');
 
@@ -16,16 +15,12 @@ export async function GET(req: NextRequest) {
       .from('communities')
       .select(`
         *,
-        creator:profiles(id, full_name, username, avatar_url),
+        creator:profiles!communities_created_by_fkey(id, full_name, username, avatar_url),
         members:community_members(count)
       `, { count: 'exact' });
 
     if (search) {
       query = query.or(`name.ilike.%${search}%,description.ilike.%${search}%`);
-    }
-
-    if (category) {
-      query = query.eq('category', category);
     }
 
     const { data, error, count } = await query
@@ -46,7 +41,7 @@ export async function POST(req: NextRequest) {
     const creator_id = await getAuthenticatedUserId(req);
     if (!creator_id) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
-    const { name, username, description, category, avatar_url, cover_url, is_private } = await req.json();
+    const { name, description, avatar_url, cover_url, is_private } = await req.json();
 
     if (!name || !creator_id) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
@@ -56,12 +51,11 @@ export async function POST(req: NextRequest) {
       .from('communities')
       .insert({
         name,
-        username,
+        slug: `${name.toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')}-${Date.now().toString(36)}`,
         description,
-        category,
         avatar_url,
         cover_url,
-        creator_id,
+        created_by: creator_id,
         is_private,
       })
       .select()
@@ -74,7 +68,7 @@ export async function POST(req: NextRequest) {
       .from('community_members')
       .insert({
         community_id: data.id,
-        user_id: creator_id,
+        profile_id: creator_id,
         role: 'admin',
       });
 

@@ -79,16 +79,16 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         .from('community_members')
         .select('id')
         .eq('community_id', id)
-        .eq('user_id', user_id)
+        .eq('profile_id', user_id)
         .single(),
       supabaseAdmin
         .from('communities')
-        .select('creator_id')
+        .select('created_by')
         .eq('id', id)
         .single(),
     ]);
 
-    const isCreator = communityData?.creator_id === user_id;
+    const isCreator = communityData?.created_by === user_id;
 
     if (!member && !isCreator) {
       return NextResponse.json({ error: 'Not a member of this community' }, { status: 403 });
