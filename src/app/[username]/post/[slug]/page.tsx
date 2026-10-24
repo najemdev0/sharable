@@ -59,7 +59,7 @@ export default function PostPage() {
             views_count,
             is_community_post,
             community_id,
-            user:profiles!posts_user_id_fk(id, full_name, username, avatar_url, identity_tag),
+            user:profiles!posts_author_id_fkey(id, full_name, username, avatar_url),
             community:communities(id, name)
           `)
           .eq('slug', slug)

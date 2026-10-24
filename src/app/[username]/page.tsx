@@ -23,7 +23,7 @@ interface Profile {
   full_name: string;
   username: string;
   avatar_url: string;
-  cover_url: string;
+  cover_url?: string;
   account_type?: string;
   identity_tag?: string | null;
   // Personal fields
@@ -66,11 +66,15 @@ export default function UserProfilePage() {
         setCurrentUserId(user.id);
       }
 
-      const { data: profileData } = await supabase
-      .from('profiles')
-      .select('id, full_name, username, avatar_url, cover_url, account_type, identity_tag, bio, description, date_of_birth, gender, since, org_type, saved_visibility, relationship_status, created_at')
-      .eq('username', sharableId)
-        .single();
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('id, full_name, username, avatar_url, bio, location, website, is_public, created_at, last_seen, status')
+        .eq('username', sharableId)
+        .maybeSingle();
+
+      if (profileError) {
+        console.error('[public-profile] profile lookup failed:', profileError);
+      }
 
       if (profileData) {
         setProfile(profileData);
@@ -82,14 +86,7 @@ export default function UserProfilePage() {
 
         const { data: postsData } = await supabase
           .from('posts')
-          .select(`
-            *,
-            user:profiles(full_name, avatar_url, username, identity_tag),
-            original_post:reposted_id(
-              *,
-              user:profiles(full_name, avatar_url, username, identity_tag)
-            )
-          `)
+          .select('*, user:profiles(id, full_name, avatar_url, username)')
           .eq('user_id', profileData.id)
           .order('created_at', { ascending: false });
 
@@ -106,28 +103,6 @@ export default function UserProfilePage() {
 
         if (storiesData) {
           setUserStories(storiesData);
-        }
-
-        // Fetch saved posts if public
-        if (profileData.saved_visibility === 'public') {
-            const { data: savedData } = await supabase
-              .from('saved_posts')
-              .select(`
-                post:posts(
-                  *,
-                  user:profiles(full_name, avatar_url, username),
-                  original_post:reposted_id(
-                    *,
-                    user:profiles(full_name, avatar_url, username)
-                  )
-                )
-              `)
-              .eq('user_id', profileData.id)
-              .order('created_at', { ascending: false });
-
-          if (savedData) {
-            setSavedPosts(savedData.map((s: any) => s.post).filter(Boolean));
-          }
         }
 
         const countsRes = await fetch(`/api/follow?user_id=${profileData.id}`);
