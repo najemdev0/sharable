@@ -54,8 +54,7 @@ export function LoginForm({ onSuccess, onSwitchToRegister }: LoginFormProps) {
         if (onSuccess) {
           onSuccess();
         } else {
-          // Use window.location.href to ensure a full refresh and cookie processing
-          window.location.href = '/home';
+          router.replace('/home');
         }
       } catch (error: any) {
       toast.error(error.message || t('invalid_credentials'));

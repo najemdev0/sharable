@@ -87,6 +87,7 @@ export default function HomePage() {
 
   const observer = useRef<IntersectionObserver | null>(null);
   const visibilityObserver = useRef<IntersectionObserver | null>(null);
+  const initialFetchRef = useRef<string | null>(null);
 
   useEffect(() => {
     const cacheKey = getCacheKey(feedMode);
@@ -155,7 +156,19 @@ export default function HomePage() {
     else setLoadingMore(true);
 
     try {
-      const { data: { user } } = await supabase.auth.getUser();
+      let { data: { user } } = await supabase.auth.getUser();
+
+      // Login uses the app's httpOnly JWT cookie, not a browser Supabase session.
+      // Fall back to the app session endpoint so home does not keep retrying forever.
+      if (!user) {
+        const sessionResponse = await fetch('/api/auth/session', { cache: 'no-store' });
+        if (sessionResponse.ok) {
+          const sessionData = await sessionResponse.json();
+          if (sessionData.user?.id) {
+            user = { id: sessionData.user.id } as typeof user;
+          }
+        }
+      }
 
       if (!user) {
         setLoading(false);
@@ -163,7 +176,7 @@ export default function HomePage() {
         return;
       }
 
-      if (!currentUser) setCurrentUser(user);
+      setCurrentUser((previous) => previous ?? user);
 
       if (user && !isLoadMore) {
         const [profileRes, followsRes] = await Promise.all([
@@ -318,13 +331,13 @@ export default function HomePage() {
       setLoading(false);
       setLoadingMore(false);
     }
-  }, [currentUser, profile]);
+  }, []);
 
   useEffect(() => {
-    if (posts.length === 0) {
-      fetchPosts(0, feedMode, false);
-    }
-  }, [feedMode, posts.length, fetchPosts]);
+    if (initialFetchRef.current === feedMode) return;
+    initialFetchRef.current = feedMode;
+    fetchPosts(0, feedMode, false);
+  }, [feedMode, fetchPosts]);
 
   const handleLoadMore = useCallback(() => {
     if (!loading && !loadingMore && hasMore) {

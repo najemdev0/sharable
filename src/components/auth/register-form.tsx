@@ -135,7 +135,7 @@ export function RegisterForm({ onSuccess, onSwitchToLogin }: RegisterFormProps) 
       if (onSuccess) {
         onSuccess();
       } else {
-        window.location.href = '/home';
+        router.replace('/home');
       }
     } catch (error: any) {
       console.error('Registration error:', error);
