@@ -269,14 +269,7 @@ export default function ProfilePage() {
 
           const { data: postsData } = await supabase
             .from('posts')
-            .select(`
-              *,
-              user:profiles(full_name, avatar_url, username, identity_tag),
-              original_post:reposted_id(
-                *,
-                user:profiles(full_name, avatar_url, username, identity_tag)
-              )
-            `)
+            .select('*, user:profiles!posts_author_id_fkey(id, full_name, avatar_url, username)')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false });
 
@@ -299,11 +292,7 @@ export default function ProfilePage() {
             .select(`
                 post:posts(
                   *,
-                  user:profiles(full_name, avatar_url, username, identity_tag),
-                  original_post:reposted_id(
-                    *,
-                    user:profiles(full_name, avatar_url, username, identity_tag)
-                  )
+                  user:profiles!posts_author_id_fkey(id, full_name, avatar_url, username)
                 )
             `)
             .eq('user_id', user.id)

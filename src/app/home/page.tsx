@@ -202,7 +202,7 @@ export default function HomePage() {
         const fetchSize = PAGE_SIZE * TRENDING_FETCH_MULTIPLIER;
         const { data, error } = await supabase
           .from('posts')
-          .select('*, user:profiles(id, full_name, avatar_url, username, identity_tag)')
+          .select('*, user:profiles!posts_author_id_fkey(id, full_name, avatar_url, username)')
           .order('created_at', { ascending: false })
           .range(currentOffset, currentOffset + fetchSize - 1);
 
@@ -224,7 +224,7 @@ export default function HomePage() {
           .from('community_posts')
           .select(`
             *,
-            user:profiles(id, full_name, username, avatar_url, identity_tag),
+            user:profiles!community_posts_user_id_fkey(id, full_name, username, avatar_url),
             community:communities(id, name),
             likes:community_post_likes(count),
             comments:community_post_comments(count)
@@ -249,7 +249,7 @@ export default function HomePage() {
       } else if (mode === 'following') {
         let query = supabase
           .from('posts')
-          .select('*, user:profiles(id, full_name, avatar_url, username, identity_tag)');
+          .select('*, user:profiles!posts_author_id_fkey(id, full_name, avatar_url, username)');
 
         if (!user) {
           query = query.order('created_at', { ascending: false });
@@ -286,7 +286,7 @@ export default function HomePage() {
           .from('community_posts')
           .select(`
             *,
-            user:profiles(id, full_name, username, avatar_url, identity_tag),
+            user:profiles!community_posts_user_id_fkey(id, full_name, username, avatar_url),
             community:communities(id, name),
             likes:community_post_likes(count),
             comments:community_post_comments(count)

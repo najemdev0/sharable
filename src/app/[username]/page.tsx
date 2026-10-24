@@ -86,7 +86,7 @@ export default function UserProfilePage() {
 
         const { data: postsData } = await supabase
           .from('posts')
-          .select('*, user:profiles(id, full_name, avatar_url, username)')
+          .select('*, user:profiles!posts_author_id_fkey(id, full_name, avatar_url, username)')
           .eq('user_id', profileData.id)
           .order('created_at', { ascending: false });
 
