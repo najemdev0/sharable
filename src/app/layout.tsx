@@ -13,6 +13,7 @@ import { NavigationHistoryProvider } from "@/components/NavigationHistoryProvide
 import { ThemeColorMeta } from "@/components/ThemeColorMeta";
 import { CacheProvider } from "@/providers/CacheProvider";
 import { BackButtonHandler } from "@/components/BackButtonHandler";
+import { AuthenticatedAppFrame } from "@/components/AuthenticatedAppFrame";
 
 
 const APP_URL = 'https://sharableofc.vercel.app';
@@ -177,7 +178,7 @@ export default function RootLayout({
                 }}
               />
               <ThemeColorMeta />
-              {children}
+              <AuthenticatedAppFrame>{children}</AuthenticatedAppFrame>
                 <ThemedToaster />
                 <RealtimeNotifications />
                 <VisualEditsMessenger />
