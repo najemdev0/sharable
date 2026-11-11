@@ -958,8 +958,20 @@ export function PostCard({
               </DrawerContent>
             </Drawer>
 
-      {showComments && (
-        <div className="border-t border-black/5 dark:border-white/5 bg-white dark:bg-zinc-950">
+      <Drawer open={showComments} onOpenChange={setShowComments}>
+        <DrawerContent className="bg-white dark:bg-zinc-950 border-black/10 dark:border-white/10 p-0 max-h-[90vh]">
+          <div className="flex items-center justify-between px-4 py-3 border-b border-black/5 dark:border-white/5">
+            <h2 className="text-base font-bold">Comments</h2>
+            <button
+              type="button"
+              onClick={() => setShowComments(false)}
+              aria-label="Close comments"
+              className="p-2 rounded-full text-zinc-500 hover:bg-black/5 dark:hover:bg-white/10"
+            >
+              <X size={20} />
+            </button>
+          </div>
+          <div className="border-t border-black/5 dark:border-white/5 bg-white dark:bg-zinc-950">
           <div className="max-h-[60vh] overflow-y-auto">
             {loadingComments ? (
               <div className="flex items-center justify-center py-8">
@@ -1141,8 +1153,9 @@ export function PostCard({
               </div>
             </div>
           </div>
-        </div>
-      )}
+          </div>
+        </DrawerContent>
+      </Drawer>
 
       <AnimatePresence>
         {showPostMenuSheet && (
