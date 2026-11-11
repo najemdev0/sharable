@@ -60,6 +60,7 @@ export async function POST(request: Request) {
         user_id: userId,
         full_name: fullName,
         username: username.toLowerCase(),
+        account_type: 'personal',
         // Personal fields
         bio: bio || null,
         avatar_url: avatarUrl || '',
