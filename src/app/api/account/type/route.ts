@@ -9,13 +9,13 @@ export async function GET(request: Request) {
   const supabaseAdmin = getSupabaseAdmin();
   const { data, error } = await supabaseAdmin
     .from('profiles')
-    .select('id, username, account_type, brand_converted_at')
+    .select('id, username, account_type')
     .eq('id', profileId)
     .maybeSingle();
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 });
   if (!data) return NextResponse.json({ error: 'Profile not found' }, { status: 404 });
-  return NextResponse.json({ accountType: data.account_type || 'personal', convertedAt: data.brand_converted_at || null });
+  return NextResponse.json({ accountType: data.account_type || 'personal' });
 }
 
 export async function POST(request: Request) {
@@ -50,7 +50,7 @@ export async function POST(request: Request) {
 
     const { error: updateError } = await supabaseAdmin
       .from('profiles')
-      .update({ account_type: 'brand', brand_converted_at: new Date().toISOString() })
+      .update({ account_type: 'brand' })
       .eq('id', profileId)
       .eq('account_type', 'personal');
 
