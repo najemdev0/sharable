@@ -14,7 +14,7 @@ interface Conversation {
   unread_count: number;
 }
 
-export function MessagesRail() {
+export function MessagesRail({ railWidth = 30 }: { railWidth?: number }) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
 
@@ -44,7 +44,10 @@ export function MessagesRail() {
   );
 
   return (
-    <aside className="hidden md:flex fixed right-0 top-0 z-30 h-screen w-[20%] min-w-[240px] flex-col border-l border-border bg-background">
+    <aside
+      className="hidden md:flex fixed right-0 top-0 z-30 h-screen min-w-[240px] flex-col border-l border-border bg-background"
+      style={{ width: `${railWidth}%` }}
+    >
       <div className="flex h-20 shrink-0 items-center justify-between border-b border-border px-5">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-muted-foreground">Inbox</p>

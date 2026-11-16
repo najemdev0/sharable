@@ -219,8 +219,7 @@ function SearchContent() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder={searchType ? `Search ${searchType}...` : 'Search Sharable'}
-              className="flex-1 bg-transparent px-2 focus:outline-none text-sm h-full"
-              autoFocus
+              className="flex-1 bg-transparent px-2 focus:outline-none text-base h-full"
             />
             {query && (
               <button

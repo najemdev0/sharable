@@ -7,7 +7,7 @@ import { supabase } from '@/lib/supabase';
 import { Home, Search, PlusSquare, Bell, UserCircle } from 'lucide-react';
 import { CreateBottomSheet } from './CreateBottomSheet';
 
-export function DesktopSidebar() {
+export function DesktopSidebar({ contentWidth = 70 }: { contentWidth?: number }) {
   const pathname = usePathname();
   const router = useRouter();
   const [unreadCount, setUnreadCount] = useState(0);
@@ -89,12 +89,15 @@ export function DesktopSidebar() {
     <>
       <CreateBottomSheet isOpen={showCreateSheet} onClose={() => setShowCreateSheet(false)} />
 
-      <header className="hidden md:flex fixed left-0 top-0 z-40 h-20 w-[80%] items-center gap-3 border-b border-border bg-background/95 px-6 backdrop-blur">
+      <header
+        className="hidden md:flex fixed left-0 top-0 z-40 h-20 items-center gap-3 border-b border-border bg-background/95 px-6 backdrop-blur"
+        style={{ width: `${contentWidth}%` }}
+      >
         <Link href="/home" aria-label="Home" className={navLinkClass('/home')}>
           <Home size={21} strokeWidth={1.8} fill={pathname === '/home' ? 'currentColor' : 'none'} />
         </Link>
 
-        <form onSubmit={handleSearch} className="min-w-0 flex-1">
+        <form onSubmit={handleSearch} className="min-w-0 flex-1" onClick={() => pathname !== '/search' && router.push('/search')}>
           <label className="sr-only" htmlFor="desktop-search">Search Sharable</label>
           <div className="flex h-11 w-full items-center rounded-full bg-muted px-4 transition-colors focus-within:ring-2 focus-within:ring-foreground/20">
             <Search size={19} className="mr-2 shrink-0 text-muted-foreground" strokeWidth={1.8} />
@@ -103,7 +106,7 @@ export function DesktopSidebar() {
               name="query"
               type="search"
               placeholder="Search Sharable"
-              className="min-w-0 flex-1 bg-transparent text-sm text-foreground outline-none placeholder:text-muted-foreground"
+              className="min-w-0 flex-1 bg-transparent text-base text-foreground outline-none placeholder:text-muted-foreground"
             />
           </div>
         </form>
