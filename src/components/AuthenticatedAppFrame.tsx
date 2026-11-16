@@ -83,8 +83,8 @@ export function AuthenticatedAppFrame({ children }: { children: React.ReactNode 
         </div>
       )}
       <div
-        className={isMessagesPage ? '' : 'md:pt-20'}
-        style={isMessagesPage ? undefined : { width: `${leftWidth}%` }}
+        className={isMessagesPage ? '' : 'w-full md:pt-20 md:w-[var(--desktop-content-width)]'}
+        style={isMessagesPage ? undefined : ({ '--desktop-content-width': `${leftWidth}%` } as React.CSSProperties)}
       >
         {children}
       </div>
