@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import { DesktopSidebar } from './DesktopSidebar';
+import { MessagesRail } from './MessagesRail';
 
 export function AuthenticatedAppFrame({ children }: { children: React.ReactNode }) {
   const [authenticated, setAuthenticated] = useState(false);
@@ -32,10 +33,15 @@ export function AuthenticatedAppFrame({ children }: { children: React.ReactNode 
     return <>{children}</>;
   }
 
+  const isMessagesPage = pathname.startsWith('/messages');
+
   return (
     <>
       <DesktopSidebar />
-      <div className="md:pl-64 md:pt-16">{children}</div>
+      {!isMessagesPage && <MessagesRail />}
+      <div className={isMessagesPage ? '' : 'md:w-[80%] md:pt-20'}>
+        {children}
+      </div>
     </>
   );
 }
