@@ -361,7 +361,7 @@ export default function HomePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
-      <header className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-zinc-950 border-b border-black/5 dark:border-white/5">
+      <header className="fixed top-0 left-0 right-0 z-40 bg-white dark:bg-zinc-950 border-b border-black/5 dark:border-white/5 md:hidden">
         <div className="flex items-center justify-between px-4 h-16">
           <button
             onClick={() => setMainMenuOpen(true)}

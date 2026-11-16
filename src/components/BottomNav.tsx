@@ -108,7 +108,7 @@ export function BottomNav() {
           <>
             <CreateBottomSheet isOpen={showCreateSheet} onClose={() => setShowCreateSheet(false)} />
             {/* Bottom navigation on mobile; top navigation after login on desktop. */}
-            <nav className="fixed bottom-0 left-0 right-0 z-[60] bg-background h-16 border-t border-border md:top-0 md:bottom-auto md:left-64 md:border-t-0 md:border-b">
+            <nav className="fixed bottom-0 left-0 right-0 z-[60] bg-background h-16 border-t border-border md:hidden">
               <div className="flex items-center justify-between px-4 h-full">
                 {navItems.map((item) => {
               const Icon = item.icon;
